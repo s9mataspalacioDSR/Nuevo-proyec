@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano Tiles Ultimate — Matías</title>
+<style>
+  :root {
+    --bg-gradient: linear-gradient(120deg,#071127,#0b2140,#1a2a6c);
+    --tile-base: #42E695;
+    --tile-hit: #FF3CAC;
+    --hud-bg: rgba(255,255,255,0.05);
+    --hud-text: #cfeff7;
+  }
+  body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: var(--bg-gradient);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:#fff;
+  }
+  #gameContainer {
+    position: relative;
+    width: 400px;
+  }
+  canvas {
+    border-radius:12px;
+    display:block;
+    width: 100%;
+    height: 600px;
+    background: linear-gradient(180deg,#0a0f1a,#07102a);
+  }
+  .hud {
+    display:flex;
+    justify-content:space-between;
+    margin-top:8px;
+    font-size:14px;
+  }
+  .hud div {
+    background: var(--hud-bg);
+    padding:6px 10px;
+    border-radius:8px;
+  }
+  #controls {
+    margin-top:10px;
+    display:flex;
+    justify-content:space-between;
+  }
+  button {
+    padding:8px 12px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+    background: #00e676;
+    color:#02241a;
+  }
+</style>
+</head>
+<body>
+
+<div id="gameContainer">
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <div class="hud">
+    <div>Jugador: <span id="hudName">Invitado</span></div>
+    <div>Puntos: <span id="hudScore">0</span></div>
+    <div>Nivel: <span id="hudLvl">1</span></div>
+  </div>
+  <div id="controls">
+    <button id="btnStart">▶ Jugar</button>
+    <button id="btnRestart">🔄 Reiniciar</button>
+  </div>
+</div>
+
+<audio id="gameSong" src="song.mp3" preload="auto"></audio>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const hudScore = document.getElementById('hudScore');
+const hudLvl = document.getElementById('hudLvl');
+const hudName = document.getElementById('hudName');
+const btnStart = document.getElementById('btnStart');
+const btnRestart = document.getElementById('btnRestart');
+const gameSong = document.getElementById('gameSong');
+
+let tiles = [];
+let score = 0;
+let level = 1;
+let speed = 1;
+let running = false;
+const cols = 4;
+const tileW = canvas.width / cols;
+const tileH = 150;
+let spawnInterval;
+let loopId;
+
+// Paleta llamativa
+const colors = ['#FF3CAC','#2B86C5','#42E695','#FFAA00','#FF1B6B','#8A2BE2','#00C2FF'];
+
+function spawnTile() {
+  const col = Math.floor(Math.random() * cols);
+  tiles.push({x:col*tileW, y:-tileH, w:tileW, h:tileH, hit:false});
+}
+
+function drawTiles() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  tiles.forEach(t=>{
+    // Cambia de color según velocidad
+    let colorIdx = Math.min(Math.floor(speed-1), colors.length-1);
+    ctx.fillStyle = t.hit ? '#555' : colors[colorIdx];
+    ctx.fillRect(t.x+6, t.y+6, t.w-12, t.h-12);
+    // Highlight
+    ctx.fillStyle='rgba(255,255,255,0.1)';
+    ctx.fillRect(t.x+6, t.y+6, t.w-12, 6);
+  });
+}
+
+function update() {
+  if(!running) return;
+  for(let i=tiles.length-1;i>=0;i--){
+    tiles[i].y += 3*speed;
+    if(tiles[i].y+tiles[i].h >= canvas.height && !tiles[i].hit){
+      gameOver();
+      return;
+    }
+  }
+  drawTiles();
+  hudScore.textContent = score;
+  hudLvl.textContent = level;
+  loopId = requestAnimationFrame(update);
+}
+
+canvas.addEventListener('click', (e)=>{
+  if(!running) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX-rect.left;
+  const y = e.clientY-rect.top;
+  let hit = false;
+  for(let i=tiles.length-1;i>=0;i--){
+    const t=tiles[i];
+    if(!t.hit && x>=t.x && x<=t.x+t.w && y>=t.y && y<=t.y+t.h){
+      t.hit=true;
+      tiles.splice(i,1);
+      score += Math.floor(10*speed);
+      level = 1 + Math.floor(score/50);
+      speed = 1 + Math.floor(score/50)*0.1;
+      hit=true;
+      break;
+    }
+  }
+  if(!hit) gameOver();
+});
+
+function gameOver(){
+  running=false;
+  clearInterval(spawnInterval);
+  gameSong.pause();
+  alert('Game Over! Puntos: '+score);
+}
+
+function startGame(){
+  tiles=[];
+  score=0;
+  level=1;
+  speed=1;
+  running=true;
+  gameSong.currentTime=0;
+  gameSong.play();
+  spawnInterval=setInterval(spawnTile,500);
+  update();
+}
+
+btnStart.addEventListener('click', startGame);
+btnRestart.addEventListener('click', ()=>{
+  running=false;
+  clearInterval(spawnInterval);
+  startGame();
+});
+</script>
+
+</body>
+</html>
