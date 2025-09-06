@@ -191,129 +191,184 @@ let speedInterval;
 const keyMap = { '1':0, '2':1, '3':2, '4':3 };
 const colors = ['#FF3CAC','#2B86C5','#42E695','#FFAA00','#FF1B6B','#8A2BE2','#00C2FF'];
 
+// Crear un nuevo tile en columna aleatoria
 function spawnTile() {
   const col = Math.floor(Math.random() * cols);
   tiles.push({ x: col * tileW, y: -tileH, w: tileW, h: tileH, hit: false });
 }
 
+// Tile más cercano al borde inferior
 function getActiveTile() {
   if (tiles.length === 0) return null;
-  return tiles.reduce((prev,curr)=> prev.y>curr.y?prev:curr);
+  return tiles.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
 }
 
+// Dibujar tiles y resaltar el activo
 function drawTiles() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   const activeTile = getActiveTile();
 
-  tiles.forEach(t=>{
-    let colorIdx = Math.min(Math.floor(speed-1),colors.length-1);
-    let fillColor = t.hit ? '#555' : (t===activeTile?'#FFD700':colors[colorIdx]);
+  tiles.forEach(t => {
+    let colorIdx = Math.min(Math.floor(speed - 1), colors.length - 1);
+    let fillColor = t.hit ? '#555' : (t === activeTile ? '#FFD700' : colors[colorIdx]);
 
-    // Relleno y borde
     ctx.fillStyle = fillColor;
-    ctx.fillRect(t.x+6,t.y+6,t.w-12,t.h-12);
+    ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
 
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
-    ctx.fillRect(t.x+6,t.y+6,t.w-12,6);
+    ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, 6);
 
-    ctx.strokeStyle = t.hit?'#AAA':(t===activeTile?'#333':'#fff');
-    ctx.lineWidth=3;
-    ctx.shadowColor='#8A2BE2';
-    ctx.shadowBlur=8;
-    ctx.strokeRect(t.x+6,t.y+6,t.w-12,t.h-12);
-    ctx.shadowBlur=0;
+    ctx.strokeStyle = t.hit ? '#AAA' : (t === activeTile ? '#333' : '#fff');
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#8A2BE2';
+    ctx.shadowBlur = 10;
+    ctx.strokeRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
+    ctx.shadowBlur = 0;
   });
 
-  // Números columnas
-  ctx.fillStyle='white';
-  ctx.font='30px Arial';
-  ctx.textAlign='center';
-  ctx.textBaseline='bottom';
-  for(let i=0;i<cols;i++){
-    const centerX = i*tileW + tileW/2;
-    const posY = canvas.height - 10;
-    ctx.fillText(i+1, centerX, posY);
+  ctx.fillStyle = 'white';
+  ctx.font = '30px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  for (let i = 0; i < cols; i++) {
+    const centerX = i * tileW + tileW / 2;
+    ctx.fillText(i + 1, centerX, canvas.height - 10);
   }
 }
 
+// Actualizar posición de tiles
 function update() {
-  if(!running) return;
-  for(let i=tiles.length-1;i>=0;i--){
-    tiles[i].y += 3*speed;
-    if(tiles[i].y + tiles[i].h >= canvas.height && !tiles[i].hit){
+  if (!running) return;
+
+  for (let i = tiles.length-1; i >= 0; i--) {
+    tiles[i].y += 3 * speed;
+    if (tiles[i].y + tiles[i].h >= canvas.height && !tiles[i].hit) {
       gameOver();
       return;
     }
   }
+
   drawTiles();
   hudScore.textContent = score;
   hudLvl.textContent = level;
+
   requestAnimationFrame(update);
 }
 
-function handleTileHit(tile){
-  tile.hit=true;
-  tiles.splice(tiles.indexOf(tile),1);
-  score+=10;
-  level = 1+Math.floor(score/50);
-}
+// Manejo de clic del mouse
+canvas.addEventListener('click', (e) => {
+  if (!running) return;
+  const activeTile = getActiveTile();
+  if (!activeTile) return;
 
-canvas.addEventListener('click',e=>{
-  if(!running) return;
-  const activeTile=getActiveTile();
-  if(!activeTile) return;
-  const rect=canvas.getBoundingClientRect();
-  const x=e.clientX-rect.left;
-  const y=e.clientY-rect.top;
-  if(x<activeTile.x||x>activeTile.x+activeTile.w||y<activeTile.y||y>activeTile.y+activeTile.h){
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  if (x < activeTile.x || x > activeTile.x + activeTile.w || y < activeTile.y || y > activeTile.y + activeTile.h) {
     gameOver();
     return;
   }
-  handleTileHit(activeTile);
+
+  activeTile.hit = true;
+  tiles.splice(tiles.indexOf(activeTile), 1);
+
+  score += 10;
+  level = 1 + Math.floor(score / 50);
 });
 
-document.addEventListener('keydown',e=>{
-  if(!running) return;
-  const col=keyMap[e.key];
-  if(col===undefined) return;
-  const activeTile=getActiveTile();
-  if(!activeTile) return;
-  if(activeTile.x/tileW!==col){ gameOver(); return; }
-  handleTileHit(activeTile);
+// Manejo de teclado
+document.addEventListener('keydown', (e) => {
+  if (!running) return;
+  const col = keyMap[e.key];
+  if (col === undefined) return;
+
+  const activeTile = getActiveTile();
+  if (!activeTile) return;
+
+  if (activeTile.x / tileW !== col) {
+    gameOver();
+    return;
+  }
+
+  activeTile.hit = true;
+  tiles.splice(tiles.indexOf(activeTile), 1);
+
+  score += 10;
+  level = 1 + Math.floor(score / 50);
 });
 
-function gameOver(){
-  running=false;
+// Manejo táctil (para móviles)
+canvas.addEventListener('touchstart', (e) => {
+  if (!running) return;
+  e.preventDefault();
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const x = touch.clientX - rect.left;
+  const y = touch.clientY - rect.top;
+
+  const activeTile = getActiveTile();
+  if (!activeTile) return;
+
+  if (x < activeTile.x || x > activeTile.x + activeTile.w || y < activeTile.y || y > activeTile.y + activeTile.h) {
+    gameOver();
+    return;
+  }
+
+  activeTile.hit = true;
+  tiles.splice(tiles.indexOf(activeTile), 1);
+
+  score += 10;
+  level = 1 + Math.floor(score / 50);
+});
+
+// Terminar el juego
+function gameOver() {
+  running = false;
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
   gameSong.pause();
-  alert('Game Over! Puntos: '+score);
+  alert('Game Over! Puntos: ' + score);
 }
 
-function startGame(){
+// Iniciar juego
+function startGame() {
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
-  tiles=[];
-  score=0;
-  level=1;
-  speed=1;
-  running=true;
-  gameSong.currentTime=0;
+
+  tiles = [];
+  score = 0;
+  level = 1;
+  speed = 1;
+  running = true;
+
+  gameSong.currentTime = 0;
   gameSong.play();
-  spawnInterval=setInterval(spawnTile,intervalo);
-  speedInterval=setInterval(()=>{if(running) speed+=0.015;},5500);
+
+  spawnInterval = setInterval(spawnTile, intervalo);
+
+  speedInterval = setInterval(() => {
+    if (running) {
+      speed += 0.015;
+      level++;
+    }
+  }, 5500);
+
   update();
 }
 
-btnStart.addEventListener('click',startGame);
-btnRestart.addEventListener('click',()=>{
-  running=false;
+// Botones
+btnStart.addEventListener('click', startGame);
+btnRestart.addEventListener('click', () => {
+  running = false;
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
   startGame();
 });
+
 </script>
 
 </body>
 </html>
+
 
