@@ -78,6 +78,7 @@
 <audio id="gameSong" src="song.mp3" preload="auto"></audio>
 
 <script>
+  
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const hudScore = document.getElementById('hudScore');
@@ -98,6 +99,8 @@ const tileW = canvas.width / cols;
 const tileH = 150;
 let spawnInterval;
 let loopId;
+
+  const keyMap = { '1':0, '2':1, '3':2, '4':3 };
 
 // Paleta llamativa
 const colors = ['#FF3CAC','#2B86C5','#42E695','#FFAA00','#FF1B6B','#8A2BE2','#00C2FF'];
@@ -169,8 +172,7 @@ canvas.addEventListener('click', (e) => {
 });
 
 
-  }
-  if(!hit) gameOver();
+gameOver();
 });
 
 function gameOver(){
@@ -180,7 +182,9 @@ function gameOver(){
   alert('Game Over! Puntos: '+score);
 }
 let speedInterval;
-function startGame(){
+function startGame() {
+  clearInterval(spawnInterval);
+  clearInterval(speedInterval);
 
   tiles = [];
   score = 0;
@@ -189,13 +193,13 @@ function startGame(){
   running = true;
   gameSong.currentTime = 0;
   gameSong.play();
+
   spawnInterval = setInterval(spawnTile, 500);
 
-  // 🔥 Aumentar velocidad cada 2 segundos
-  setInterval(() => {
-    if (running) {
-      speed += 0.015; // sube de a 0.3
-      level++;      // también subimos el nivel
+  speedInterval = setInterval(() => {
+    if(running){
+      speed += 0.015;
+      level++;
     }
   }, 5500);
 
@@ -204,29 +208,21 @@ function startGame(){
 
 btnStart.addEventListener('click', startGame);
 btnRestart.addEventListener('click', ()=>{
-  running=false;
+  running = false;
   clearInterval(spawnInterval);
+  clearInterval(speedInterval); // también limpia la velocidad
   startGame();
-};
- const keyMap = {
-  '1': 0, // tecla 1 → columna 0
-  '2': 1, // tecla 2 → columna 1
-  '3': 2, // tecla 3 → columna 2
-  '4': 3  // tecla 4 → columna 3
 });
+
 document.addEventListener('keydown', (e) => {
   if(!running) return;
   const col = keyMap[e.key];
   if(col === undefined) return;
 
-  // Filtrar tiles de la columna que no han sido golpeados
   const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
-  if(tilesCol.length === 0) return; // no hay tiles en esa columna
+  if(tilesCol.length === 0) return;
 
-  // Elegir el primero que cayó (el más arriba)
   const firstTile = tilesCol.reduce((prev, curr) => prev.y < curr.y ? prev : curr);
-
-  // Golpear y eliminar
   firstTile.hit = true;
   const index = tiles.indexOf(firstTile);
   if(index > -1) tiles.splice(index, 1);
@@ -236,23 +232,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 
-  
-
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
