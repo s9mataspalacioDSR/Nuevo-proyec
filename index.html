@@ -146,23 +146,29 @@ function update() {
   loopId = requestAnimationFrame(update);
 }
 
-canvas.addEventListener('click', (e)=>{
+canvas.addEventListener('click', (e) => {
   if(!running) return;
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX-rect.left;
-  const y = e.clientY-rect.top;
-  let hit = false;
-  for(let i=tiles.length-1;i>=0;i--){
-    const t=tiles[i];
-    if(!t.hit && x>=t.x && x<=t.x+t.w && y>=t.y && y<=t.y+t.h){
-      t.hit=true;
-      tiles.splice(i,1);
-      score += 10;
-      level = 1 + Math.floor(score/50);
-      //speed = 1 + Math.floor(score/1000)*0.01;
-      hit=true;
-      break;
-    }
+  const x = e.clientX - rect.left;
+
+  const col = Math.floor(x / tileW);
+
+  // Filtrar tiles de la columna que no han sido golpeados
+  const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
+  if(tilesCol.length === 0) { gameOver(); return; }
+
+  // Elegir el primero que cayó (el más arriba)
+  const firstTile = tilesCol.reduce((prev, curr) => prev.y < curr.y ? prev : curr);
+
+  // Golpear y eliminar
+  firstTile.hit = true;
+  const index = tiles.indexOf(firstTile);
+  if(index > -1) tiles.splice(index, 1);
+
+  score += 10;
+  level = 1 + Math.floor(score/50);
+});
+
   }
   if(!hit) gameOver();
 });
@@ -202,22 +208,27 @@ btnRestart.addEventListener('click', ()=>{
   clearInterval(spawnInterval);
   startGame();
 });
-  document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', (e) => {
   if(!running) return;
   const col = keyMap[e.key];
   if(col === undefined) return;
 
-  for(let i = 0; i < tiles.length; i++){
-    const t = tiles[i];
-    if(!t.hit && t.x / tileW === col){
-      t.hit = true;
-      tiles.splice(i, 1);
-      score += 10; // puntos
-      level = 1 + Math.floor(score/50);
-      break;
-    }
-  }
+  // Filtrar tiles de la columna que no han sido golpeados
+  const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
+  if(tilesCol.length === 0) return; // no hay tiles en esa columna
+
+  // Elegir el primero que cayó (el más arriba)
+  const firstTile = tilesCol.reduce((prev, curr) => prev.y < curr.y ? prev : curr);
+
+  // Golpear y eliminar
+  firstTile.hit = true;
+  const index = tiles.indexOf(firstTile);
+  if(index > -1) tiles.splice(index, 1);
+
+  score += 10;
+  level = 1 + Math.floor(score/50);
 });
+
 
   const keyMap = {
   '1': 0, // tecla 1 → columna 0
@@ -230,6 +241,7 @@ btnRestart.addEventListener('click', ()=>{
 
 </body>
 </html>
+
 
 
 
