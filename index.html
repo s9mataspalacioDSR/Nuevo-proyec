@@ -81,12 +81,12 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const hudScore = document.getElementById('hudScore');
 const hudLvl = document.getElementById('hudLvl');
-const hudName = document.getElementById('hudName');
 const btnStart = document.getElementById('btnStart');
 const btnRestart = document.getElementById('btnRestart');
 const gameSong = document.getElementById('gameSong');
-const BPM = 118;
-const intervalo = 60 / BPM * 1000;
+
+const BPM = 118; // ajusta según tu canción
+const intervalo = (60 / BPM) * 1000; // intervalo entre tiles en ms
 
 let tiles = [];
 let score = 0;
@@ -96,6 +96,7 @@ let running = false;
 const cols = 4;
 const tileW = canvas.width / cols;
 const tileH = 150;
+
 let spawnInterval;
 let speedInterval;
 
@@ -104,11 +105,12 @@ const colors = ['#FF3CAC','#2B86C5','#42E695','#FFAA00','#FF1B6B','#8A2BE2','#00
 
 function spawnTile() {
   const col = Math.floor(Math.random() * cols);
-  tiles.push({ x: col*tileW, y: -tileH, w: tileW, h: tileH, hit: false });
+  tiles.push({ x: col * tileW, y: -tileH, w: tileW, h: tileH, hit: false });
 }
 
 function drawTiles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
   tiles.forEach(t => {
     let colorIdx = Math.min(Math.floor(speed-1), colors.length-1);
     ctx.fillStyle = t.hit ? '#555' : colors[colorIdx];
@@ -117,13 +119,12 @@ function drawTiles() {
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.fillRect(t.x+6, t.y+6, t.w-12, 6);
 
-    ctx.fillStyle = "white";
-    ctx.font = "30px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-
-    for(let i=0; i<cols; i++){
-      const centerX = i * tileW + tileW/2;
+    ctx.fillStyle = 'white';
+    ctx.font = '30px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    for(let i=0;i<cols;i++){
+      const centerX = i*tileW + tileW/2;
       const posY = canvas.height - 10;
       ctx.fillText(i+1, centerX, posY);
     }
@@ -133,7 +134,7 @@ function drawTiles() {
 function update() {
   if(!running) return;
 
-  for(let i=tiles.length-1; i>=0; i--){
+  for(let i=tiles.length-1;i>=0;i--){
     tiles[i].y += 3*speed;
     if(tiles[i].y + tiles[i].h >= canvas.height && !tiles[i].hit){
       gameOver();
@@ -188,8 +189,10 @@ function startGame() {
   gameSong.currentTime = 0;
   gameSong.play();
 
-  spawnInterval = setInterval(spawnTile, 500);
+  // Spawn sincronizado con el BPM
+  spawnInterval = setInterval(spawnTile, intervalo);
 
+  // Incrementa velocidad cada 5.5 segundos
   speedInterval = setInterval(() => {
     if(running){
       speed += 0.015;
@@ -226,8 +229,10 @@ document.addEventListener('keydown', (e) => {
 });
 </script>
 
+
 </body>
 </html>
+
 
 
 
