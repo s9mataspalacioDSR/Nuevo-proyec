@@ -114,59 +114,38 @@ function spawnTile() {
 // Tile más cercano al borde inferior
 function getActiveTile() {
   if (tiles.length === 0) return null;
-  // Cambiado < a > para seleccionar el tile con Y más grande
-  return tiles.reduce((prev, curr) => prev.y < curr.y ? curr : prev);
+  // Seleccionar el tile con Y más grande (más cercano al borde inferior)
+  return tiles.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
 }
 // Dibujar tiles y resaltar el activo
 function drawTiles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Obtener el tile más cercano al borde inferior
   const activeTile = getActiveTile();
 
-  // Dibujar todos los tiles
   tiles.forEach(t => {
     let colorIdx = Math.min(Math.floor(speed - 1), colors.length - 1);
 
-    // Color de relleno
     let fillColor = t.hit ? '#555' : (t === activeTile ? '#FFD700' : colors[colorIdx]);
+
+    // Relleno del tile
     ctx.fillStyle = fillColor;
     ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
 
-    // Borde del tile (color contrario)
-    ctx.strokeStyle = t.hit ? '#AAA' : (t === activeTile ? '#333' : '#fff');
-    ctx.lineWidth = 3;
-    ctx.strokeRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
-
-    // Pequeña franja blanca en la parte superior del tile
+    // Franja blanca superior
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, 6);
+
+    // Borde con sombra
+    ctx.strokeStyle = t.hit ? '#AAA' : (t === activeTile ? '#333' : '#fff');
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#8A2BE2';
+    ctx.shadowBlur = 10;
+    ctx.strokeRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
+    ctx.shadowBlur = 0; // resetear
   });
 
-  // Dibujar números de columna
-  ctx.fillStyle = 'white';
-  ctx.font = '30px Arial';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'bottom';
-  for (let i = 0; i < cols; i++) {
-    const centerX = i * tileW + tileW / 2;
-    const posY = canvas.height - 10;
-    ctx.fillText(i + 1, centerX, posY);
-  }
-} // <-- cierre final de drawTiles
-
-  // Dibujar números de columna
-  ctx.fillStyle = 'white';
-  ctx.font = '30px Arial';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'bottom';
-  for (let i = 0; i < cols; i++) {
-    const centerX = i * tileW + tileW / 2;
-    const posY = canvas.height - 10;
-    ctx.fillText(i + 1, centerX, posY);
-  }
-}
-  // Dibujar números de columna
+  // Dibujar números de columna (solo uno)
   ctx.fillStyle = 'white';
   ctx.font = '30px Arial';
   ctx.textAlign = 'center';
@@ -293,6 +272,7 @@ btnRestart.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
