@@ -5,36 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Piano Tiles Ultimate — Matías</title>
 <style>
-/* Ajustes para móviles */
-@media (max-width: 480px) {
-  #gameContainer {
-    width: 90vw; /* casi todo el ancho de la pantalla */
-    box-shadow: 0 0 30px rgba(255,255,255,0.05), 0 0 60px rgba(138,43,226,0.2);
-  }
-
-  canvas {
-    height: 400px; /* más bajo para que no ocupe toda la pantalla */
-    border-width: 4px; /* borde más delgado */
-    border-radius: 8px;
-    box-shadow: 0 0 15px #8A2BE2, 0 0 30px #FF3CAC;
-  }
-
-  .hud {
-    font-size: 12px;
-  }
-
-  .hud div {
-    padding: 6px 10px;
-    border-radius: 8px;
-  }
-
-  button {
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-  }
-}
-  
+/* Variables y colores */
 :root {
   --bg-gradient: linear-gradient(120deg,#071127,#0b2140,#1a2a6c);
   --tile-base: #42E695;
@@ -43,25 +14,26 @@
   --hud-text: #cfeff7;
 }
 
+/* BODY y fondo animado */
 body {
   margin:0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(270deg,#071127,#0b2140,#1a2be2,#FF3CAC);
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
-  color:#fff;
+  background: linear-gradient(270deg,#071127,#0b2140,#1a2be2,#FF3CAC);
   background-size: 400% 400%;
   animation: gradientShift 30s ease infinite;
+  color:#fff;
 }
-
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
+/* Contenedor del juego */
 #gameContainer {
   position: relative;
   width: 400px;
@@ -70,11 +42,11 @@ body {
   box-shadow: 0 0 40px #8A2BE2, 0 0 80px #FF3CAC;
   transition: all 0.3s ease;
 }
-
 #gameContainer:hover {
   box-shadow: 0 0 50px #FF3CAC, 0 0 100px #8A2BE2;
 }
 
+/* Canvas del tablero */
 canvas {
   display: block;
   width: 100%;
@@ -82,7 +54,7 @@ canvas {
   border-radius: 12px;
   background: linear-gradient(180deg,#0a0f1a,#07102a);
   border: 6px solid #8A2BE2;
-  box-shadow: 0 0 25px #FF3CAC, 0 0 50px #8A2BE2; /* glow estático */
+  box-shadow: 0 0 25px #FF3CAC, 0 0 50px #8A2BE2;
   transition: all 0.3s ease;
 }
 
@@ -95,15 +67,15 @@ canvas:active {
   transform: scale(1.02);
 }
 
+/* HUD */
 .hud {
   display:flex;
   justify-content:space-between;
   margin-top:8px;
   font-size:14px;
 }
-
 .hud div {
-  background: rgba(255,255,255,0.05);
+  background: var(--hud-bg);
   padding: 8px 14px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.2);
@@ -116,36 +88,22 @@ canvas:active {
   transition: all 0.3s ease;
   animation: pulseHUD 3s infinite alternate;
 }
-
 .hud div:hover {
   box-shadow: 0 0 15px #FF3CAC, 0 0 25px #8A2BE2;
   transform: scale(1.05);
 }
-
 @keyframes pulseHUD {
   0% { box-shadow: 0 0 10px rgba(255,255,255,0.3); }
   50% { box-shadow: 0 0 20px #42E695, 0 0 30px #FF3CAC; }
   100% { box-shadow: 0 0 10px rgba(255,255,255,0.3); }
 }
 
-.hud div:active, button:active {
-  animation: shake 0.2s;
-}
-
-@keyframes shake {
-  0% { transform: translate(0,0); }
-  25% { transform: translate(2px,-2px); }
-  50% { transform: translate(-2px,2px); }
-  75% { transform: translate(2px,2px); }
-  100% { transform: translate(0,0); }
-}
-
+/* Botones */
 #controls {
   margin-top:10px;
   display:flex;
   justify-content:space-between;
 }
-
 button {
   padding:10px 16px;
   border-radius:10px;
@@ -157,16 +115,35 @@ button {
   transition: all 0.3s ease;
   box-shadow: 0 0 10px #00e676, 0 0 20px #00bfa5;
 }
-
 button:hover {
   background: linear-gradient(45deg,#FF3CAC,#8A2BE2);
   box-shadow: 0 0 15px #FF3CAC, 0 0 25px #8A2BE2;
   transform: scale(1.1);
 }
-
 button:active {
   transform: scale(0.95);
   box-shadow: 0 0 5px #FF3CAC, 0 0 10px #8A2BE2 inset;
+}
+
+/* Vibración */
+.hud div:active, button:active {
+  animation: shake 0.2s;
+}
+@keyframes shake {
+  0% { transform: translate(0,0); }
+  25% { transform: translate(2px,-2px); }
+  50% { transform: translate(-2px,2px); }
+  75% { transform: translate(2px,2px); }
+  100% { transform: translate(0,0); }
+}
+
+/* Ajustes para móviles */
+@media (max-width: 480px) {
+  #gameContainer { width: 90vw; }
+  canvas { height: 400px; border-width:4px; border-radius:8px; }
+  .hud { font-size:12px; }
+  .hud div { padding:6px 10px; border-radius:8px; }
+  button { padding:8px 12px; font-size:14px; border-radius:8px; }
 }
 </style>
 </head>
@@ -186,6 +163,7 @@ button:active {
 </div>
 
 <audio id="gameSong" src="song.mp3" preload="auto"></audio>
+
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -197,7 +175,7 @@ const gameSong = document.getElementById('gameSong');
 
 const BPM = 118;
 const intervalo = (60 / BPM) * 1000;
-//hola mundo
+
 let tiles = [];
 let score = 0;
 let level = 1;
@@ -206,203 +184,136 @@ let running = false;
 const cols = 4;
 const tileW = canvas.width / cols;
 const tileH = 150;
-//hola xD
+
 let spawnInterval;
 let speedInterval;
 
 const keyMap = { '1':0, '2':1, '3':2, '4':3 };
 const colors = ['#FF3CAC','#2B86C5','#42E695','#FFAA00','#FF1B6B','#8A2BE2','#00C2FF'];
 
-// Crear un nuevo tile en columna aleatoria
 function spawnTile() {
   const col = Math.floor(Math.random() * cols);
   tiles.push({ x: col * tileW, y: -tileH, w: tileW, h: tileH, hit: false });
 }
 
-// Tile más cercano al borde inferior
 function getActiveTile() {
   if (tiles.length === 0) return null;
-  // Seleccionar el tile con Y más grande (más cercano al borde inferior)
-  return tiles.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
+  return tiles.reduce((prev,curr)=> prev.y>curr.y?prev:curr);
 }
-// Dibujar tiles y resaltar el activo
-function drawTiles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+function drawTiles() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   const activeTile = getActiveTile();
 
-  tiles.forEach(t => {
-    let colorIdx = Math.min(Math.floor(speed - 1), colors.length - 1);
+  tiles.forEach(t=>{
+    let colorIdx = Math.min(Math.floor(speed-1),colors.length-1);
+    let fillColor = t.hit ? '#555' : (t===activeTile?'#FFD700':colors[colorIdx]);
 
-    let fillColor = t.hit ? '#555' : (t === activeTile ? '#FFD700' : colors[colorIdx]);
-
-    // Relleno del tile
+    // Relleno y borde
     ctx.fillStyle = fillColor;
-    ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
+    ctx.fillRect(t.x+6,t.y+6,t.w-12,t.h-12);
 
-    // Franja blanca superior
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
-    ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, 6);
+    ctx.fillRect(t.x+6,t.y+6,t.w-12,6);
 
-    // Borde con sombra
-    ctx.strokeStyle = t.hit ? '#AAA' : (t === activeTile ? '#333' : '#fff');
-    ctx.lineWidth = 3;
-    ctx.shadowColor = '#8A2BE2';
-    ctx.shadowBlur = 10;
-    ctx.strokeRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
-    ctx.shadowBlur = 0; // resetear
+    ctx.strokeStyle = t.hit?'#AAA':(t===activeTile?'#333':'#fff');
+    ctx.lineWidth=3;
+    ctx.shadowColor='#8A2BE2';
+    ctx.shadowBlur=8;
+    ctx.strokeRect(t.x+6,t.y+6,t.w-12,t.h-12);
+    ctx.shadowBlur=0;
   });
 
-  // Dibujar números de columna (solo uno)
-  ctx.fillStyle = 'white';
-  ctx.font = '30px Arial';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'bottom';
-  for (let i = 0; i < cols; i++) {
-    const centerX = i * tileW + tileW / 2;
+  // Números columnas
+  ctx.fillStyle='white';
+  ctx.font='30px Arial';
+  ctx.textAlign='center';
+  ctx.textBaseline='bottom';
+  for(let i=0;i<cols;i++){
+    const centerX = i*tileW + tileW/2;
     const posY = canvas.height - 10;
-    ctx.fillText(i + 1, centerX, posY);
+    ctx.fillText(i+1, centerX, posY);
   }
 }
 
-// Actualizar posición de tiles
 function update() {
-  if (!running) return;
-
-  for (let i = tiles.length-1; i >= 0; i--) {
+  if(!running) return;
+  for(let i=tiles.length-1;i>=0;i--){
     tiles[i].y += 3*speed;
-    if (tiles[i].y + tiles[i].h >= canvas.height && !tiles[i].hit) {
+    if(tiles[i].y + tiles[i].h >= canvas.height && !tiles[i].hit){
       gameOver();
       return;
     }
   }
-
   drawTiles();
   hudScore.textContent = score;
   hudLvl.textContent = level;
-
   requestAnimationFrame(update);
 }
 
-// Manejo de clic del mouse
-canvas.addEventListener('click', (e) => {
-  if (!running) return;
+function handleTileHit(tile){
+  tile.hit=true;
+  tiles.splice(tiles.indexOf(tile),1);
+  score+=10;
+  level = 1+Math.floor(score/50);
+}
 
-  const activeTile = getActiveTile();
-  if (!activeTile) return;
-
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  // Verificar si el clic está dentro del tile activo
-  if (x < activeTile.x || x > activeTile.x + activeTile.w || y < activeTile.y || y > activeTile.y + activeTile.h) {
+canvas.addEventListener('click',e=>{
+  if(!running) return;
+  const activeTile=getActiveTile();
+  if(!activeTile) return;
+  const rect=canvas.getBoundingClientRect();
+  const x=e.clientX-rect.left;
+  const y=e.clientY-rect.top;
+  if(x<activeTile.x||x>activeTile.x+activeTile.w||y<activeTile.y||y>activeTile.y+activeTile.h){
     gameOver();
     return;
   }
-
-  activeTile.hit = true;
-  tiles.splice(tiles.indexOf(activeTile), 1);
-
-  score += 10;
-  level = 1 + Math.floor(score / 50);
+  handleTileHit(activeTile);
 });
 
-// Manejo de teclado
-document.addEventListener('keydown', (e) => {
-  if (!running) return;
-  const col = keyMap[e.key];
-  if (col === undefined) return;
-
-  const activeTile = getActiveTile();
-  if (!activeTile) return;
-
-  // Verificar si la columna presionada coincide con la columna del tile activo
-  if (activeTile.x / tileW !== col) {
-    gameOver();
-    return;
-  }
-
-  activeTile.hit = true;
-  tiles.splice(tiles.indexOf(activeTile), 1);
-
-  score += 10;
-  level = 1 + Math.floor(score / 50);
+document.addEventListener('keydown',e=>{
+  if(!running) return;
+  const col=keyMap[e.key];
+  if(col===undefined) return;
+  const activeTile=getActiveTile();
+  if(!activeTile) return;
+  if(activeTile.x/tileW!==col){ gameOver(); return; }
+  handleTileHit(activeTile);
 });
 
-
-// Terminar el juego
-function gameOver() {
-  running = false;
+function gameOver(){
+  running=false;
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
   gameSong.pause();
-  alert('Game Over! Puntos: ' + score);
+  alert('Game Over! Puntos: '+score);
 }
 
-// Iniciar juego
-function startGame() {
+function startGame(){
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
-
-  tiles = [];
-  score = 0;
-  level = 1;
-  speed = 1;
-  running = true;
-
-  gameSong.currentTime = 0;
+  tiles=[];
+  score=0;
+  level=1;
+  speed=1;
+  running=true;
+  gameSong.currentTime=0;
   gameSong.play();
-
-  spawnInterval = setInterval(spawnTile, intervalo);
-
-  speedInterval = setInterval(() => {
-    if (running) {
-      speed += 0.015;
-      level++;
-    }
-  }, 5500);
-
+  spawnInterval=setInterval(spawnTile,intervalo);
+  speedInterval=setInterval(()=>{if(running) speed+=0.015;},5500);
   update();
 }
 
-// Botones
-btnStart.addEventListener('click', startGame);
-btnRestart.addEventListener('click', () => {
-  running = false;
+btnStart.addEventListener('click',startGame);
+btnRestart.addEventListener('click',()=>{
+  running=false;
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
   startGame();
 });
-
 </script>
-
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
