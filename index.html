@@ -153,6 +153,18 @@ function drawTiles() {
     const posY = canvas.height - 10;
     ctx.fillText(i + 1, centerX, posY);
   }
+} // <-- cierre final de drawTiles
+
+  // Dibujar números de columna
+  ctx.fillStyle = 'white';
+  ctx.font = '30px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  for (let i = 0; i < cols; i++) {
+    const centerX = i * tileW + tileW / 2;
+    const posY = canvas.height - 10;
+    ctx.fillText(i + 1, centerX, posY);
+  }
 }
   // Dibujar números de columna
   ctx.fillStyle = 'white';
@@ -281,6 +293,7 @@ btnRestart.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
