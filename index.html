@@ -88,7 +88,6 @@ const btnRestart = document.getElementById('btnRestart');
 const gameSong = document.getElementById('gameSong');
 const BPM = 118; // Cambia esto según la canción
 const intervalo = 60 / BPM * 1000; // en milisegundos
-//hola tia yo se que te metiste aver a buscar una pista para comprobar que si fui yo pero ya estoy en vs con el codigo enfrente 
 let tiles = [];
 let score = 0;
 let level = 1;
@@ -118,6 +117,17 @@ function drawTiles() {
     // Highlight
     ctx.fillStyle='rgba(255,255,255,0.1)';
     ctx.fillRect(t.x+6, t.y+6, t.w-12, 6);
+    ctx.fillStyle = "white";
+ctx.font = "30px Arial";
+ctx.textAlign = "center";
+ctx.textBaseline = "bottom";
+
+for(let i=0; i<cols; i++){
+  const centerX = i * tileW + tileW/2;
+  const posY = canvas.height - 10;
+  ctx.fillText(i+1, centerX, posY);
+}
+
   });
 }
 
@@ -192,10 +202,35 @@ btnRestart.addEventListener('click', ()=>{
   clearInterval(spawnInterval);
   startGame();
 });
+  document.addEventListener('keydown', (e) => {
+  if(!running) return;
+  const col = keyMap[e.key];
+  if(col === undefined) return;
+
+  for(let i = 0; i < tiles.length; i++){
+    const t = tiles[i];
+    if(!t.hit && t.x / tileW === col){
+      t.hit = true;
+      tiles.splice(i, 1);
+      score += 10; // puntos
+      level = 1 + Math.floor(score/50);
+      break;
+    }
+  }
+});
+
+  const keyMap = {
+  '1': 0, // tecla 1 → columna 0
+  '2': 1, // tecla 2 → columna 1
+  '3': 2, // tecla 3 → columna 2
+  '4': 3  // tecla 4 → columna 3
+};
+
 </script>
 
 </body>
 </html>
+
 
 
 
