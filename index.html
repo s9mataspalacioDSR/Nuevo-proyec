@@ -4,7 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Piano Tiles Ultimate — Matías</title>
+100px #8A2BE2;}
 <style>
+/* Ajustes para móviles */
+@media (max-width: 480px) {
+  #gameContainer {
+    width: 90vw; /* casi todo el ancho de la pantalla */
+    box-shadow: 0 0 30px rgba(255,255,255,0.05), 0 0 60px rgba(138,43,226,0.2);
+  }
+
+  canvas {
+    height: 400px; /* más bajo para que no ocupe toda la pantalla */
+    border-width: 4px; /* borde más delgado */
+    border-radius: 8px;
+    box-shadow: 0 0 15px #8A2BE2, 0 0 30px #FF3CAC;
+  }
+
+  .hud {
+    font-size: 12px;
+  }
+
+  .hud div {
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+
+  button {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+}
+  
 :root {
   --bg-gradient: linear-gradient(120deg,#071127,#0b2140,#1a2a6c);
   --tile-base: #42E695;
@@ -350,6 +381,7 @@ btnRestart.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
