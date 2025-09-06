@@ -112,9 +112,9 @@ function spawnTile() {
 // Tile más cercano al borde inferior
 function getActiveTile() {
   if (tiles.length === 0) return null;
-  return tiles.reduce((prev, curr) => (prev.y > curr.y ? prev : curr));
+  // Cambiado < a > para seleccionar el tile con Y más grande
+  return tiles.reduce((prev, curr) => prev.y < curr.y ? curr : prev);
 }
-
 // Dibujar tiles y resaltar el activo
 function drawTiles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -256,6 +256,7 @@ btnRestart.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
