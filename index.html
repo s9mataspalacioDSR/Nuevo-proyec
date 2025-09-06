@@ -149,7 +149,7 @@ canvas.addEventListener('click', (e)=>{
       tiles.splice(i,1);
       score += Math.floor(10*speed);
       level = 1 + Math.floor(score/50);
-      speed = 1 + Math.floor(score/200)*0.03;
+      speed = 1 + Math.floor(score/1000)*0.03;
       hit=true;
       break;
     }
@@ -186,6 +186,7 @@ btnRestart.addEventListener('click', ()=>{
 
 </body>
 </html>
+
 
 
 
