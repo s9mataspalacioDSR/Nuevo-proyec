@@ -178,10 +178,10 @@ function startGame(){
   // 🔥 Aumentar velocidad cada 2 segundos
   setInterval(() => {
     if (running) {
-      speed += 0.03; // sube de a 0.3
+      speed += 0.015; // sube de a 0.3
       level++;      // también subimos el nivel
     }
-  }, 5000);
+  }, 5500);
 
   update();
 }
@@ -196,6 +196,7 @@ btnRestart.addEventListener('click', ()=>{
 
 </body>
 </html>
+
 
 
 
