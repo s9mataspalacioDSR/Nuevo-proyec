@@ -177,6 +177,7 @@ const BPM = 118;
 const intervalo = (60 / BPM) * 1000;
 
 let tiles = [];
+let particles = [];
 let score = 0;
 let level = 1;
 let speed = 1;
@@ -214,13 +215,51 @@ function getActiveTile() {
   return tiles.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
 }
 
+// Crear partículas al golpear
+function spawnParticles(tile) {
+  for (let i = 0; i < 15; i++) {
+    particles.push({
+      x: tile.x + tile.w/2,
+      y: tile.y + tile.h/2,
+      vx: (Math.random()-0.5)*4,
+      vy: (Math.random()-0.5)*4,
+      alpha: 1,
+      color: colors[Math.floor(Math.random()*colors.length)].end,
+      size: Math.random()*5+2
+    });
+  }
+}
+
+// Dibujar partículas
+function drawParticles() {
+  particles.forEach((p, i) => {
+    ctx.fillStyle = `rgba(${hexToRgb(p.color)},${p.alpha})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fill();
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.03;
+    if (p.alpha <= 0) particles.splice(i,1);
+  });
+}
+
+// Convierte hex a rgb
+function hexToRgb(hex){
+  hex = hex.replace('#','');
+  const r = parseInt(hex.substring(0,2),16);
+  const g = parseInt(hex.substring(2,4),16);
+  const b = parseInt(hex.substring(4,6),16);
+  return `${r},${g},${b}`;
+}
+
 // Dibujar tiles
 function drawTiles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
   const activeTile = getActiveTile();
 
-  tiles.forEach((t, i) => {
+  tiles.forEach(t => {
     const colorIdx = Math.min(Math.floor(speed - 1), colors.length - 1);
     const gradient = ctx.createLinearGradient(t.x, t.y, t.x + t.w, t.y + t.h);
     gradient.addColorStop(0, colors[colorIdx].start);
@@ -229,7 +268,13 @@ function drawTiles() {
     ctx.fillStyle = t.hit ? '#555' : (t === activeTile ? '#FFD700' : gradient);
     ctx.fillRect(t.x + 4, t.y + 4, t.w - 8, t.h - 8);
 
-    // Borde con sombra solo en el tile activo
+    // Efecto rastro en tile activo
+    if(t === activeTile && !t.hit){
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fillRect(t.x + 4, t.y, t.w - 8, t.h);
+    }
+
+    // Borde con sombra
     ctx.strokeStyle = t.hit ? '#AAA' : (t === activeTile ? '#fff' : '#333');
     ctx.lineWidth = t === activeTile ? 4 : 2;
     ctx.shadowColor = t === activeTile ? '#FFD700' : '#000';
@@ -238,23 +283,25 @@ function drawTiles() {
     ctx.shadowBlur = 0;
   });
 
+  drawParticles();
+
   // Números de columna
   ctx.fillStyle = 'white';
   ctx.font = '25px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
   for (let i = 0; i < cols; i++) {
-    ctx.fillText(i + 1, i * tileW + tileW / 2, canvas.height - 10);
+    ctx.fillText(i + 1, i * tileW + tileW/2, canvas.height - 10);
   }
 }
 
 // Actualizar juego
 function update() {
-  if (!running) return;
+  if(!running) return;
 
-  tiles.forEach((tile, i) => {
-    tile.y += 2 * speed; // Velocidad variable según nivel
-    if (tile.y + tile.h >= canvas.height && !tile.hit) {
+  tiles.forEach((tile,i)=>{
+    tile.y += 2*speed;
+    if(tile.y + tile.h >= canvas.height && !tile.hit){
       gameOver();
       return;
     }
@@ -267,52 +314,48 @@ function update() {
   requestAnimationFrame(update);
 }
 
-// Manejo de click
-canvas.addEventListener('click', (e) => {
-  if (!running) return;
+// Golpear un tile
+function hitTile(tile){
+  tile.hit = true;
+  spawnParticles(tile);
+  tiles.splice(tiles.indexOf(tile),1);
+  score += 10;
+  level = 1 + Math.floor(score/50);
+  // Sonido por tile (si tienes hit.mp3)
+  // new Audio('hit.mp3').play();
+}
 
+// Click
+canvas.addEventListener('click',(e)=>{
+  if(!running) return;
   const activeTile = getActiveTile();
-  if (!activeTile) return;
-
+  if(!activeTile) return;
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-
-  if (x < activeTile.x || x > activeTile.x + activeTile.w || y < activeTile.y || y > activeTile.y + activeTile.h) {
+  if(x < activeTile.x || x > activeTile.x+activeTile.w || y < activeTile.y || y > activeTile.y+activeTile.h){
     gameOver();
     return;
   }
-
   hitTile(activeTile);
 });
 
-// Manejo de teclado
-document.addEventListener('keydown', (e) => {
-  if (!running) return;
+// Teclado
+document.addEventListener('keydown',(e)=>{
+  if(!running) return;
   const col = keyMap[e.key];
-  if (col === undefined) return;
-
+  if(col === undefined) return;
   const activeTile = getActiveTile();
-  if (!activeTile) return;
-
-  if (activeTile.x / tileW !== col) {
+  if(!activeTile) return;
+  if(activeTile.x / tileW !== col){
     gameOver();
     return;
   }
-
   hitTile(activeTile);
 });
-
-// Función cuando un tile es golpeado
-function hitTile(tile) {
-  tile.hit = true;
-  tiles.splice(tiles.indexOf(tile), 1);
-  score += 10;
-  level = 1 + Math.floor(score / 50);
-}
 
 // Game Over
-function gameOver() {
+function gameOver(){
   running = false;
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
@@ -321,52 +364,46 @@ function gameOver() {
 }
 
 // Iniciar juego
-function startGame() {
+function startGame(){
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
-
-  tiles = [];
-  score = 0;
-  level = 1;
-  speed = 1;
-  running = true;
-
-  gameSong.currentTime = 0;
+  tiles=[];
+  particles=[];
+  score=0;
+  level=1;
+  speed=1;
+  running=true;
+  gameSong.currentTime=0;
   gameSong.play();
 
   spawnInterval = setInterval(spawnTile, intervalo);
-
-  speedInterval = setInterval(() => {
-    if (running) {
-      speed += 0.02;
-      level++;
-    }
-  }, 5000);
-
+  speedInterval = setInterval(()=>{ if(running){ speed+=0.02; level++; } },5000);
   update();
 }
 
 // Botones
 btnStart.addEventListener('click', startGame);
-btnRestart.addEventListener('click', () => {
-  running = false;
+btnRestart.addEventListener('click', ()=>{
+  running=false;
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
   startGame();
 });
 
-// Ajuste para móvil: actualizar tamaño de tiles
-function resizeTiles() {
-  tileW = canvas.width / cols;
-  tileH = canvas.height / 4;
+// Ajuste para móvil
+function resizeTiles(){
+  tileW = canvas.width/cols;
+  tileH = canvas.height/4;
 }
 window.addEventListener('resize', resizeTiles);
 resizeTiles();
 </script>
 
 
+
 </body>
 </html>
+
 
 
 
