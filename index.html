@@ -108,27 +108,39 @@ function spawnTile() {
   tiles.push({ x: col * tileW, y: -tileH, w: tileW, h: tileH, hit: false });
 }
 
+// Devuelve el tile más cercano al borde inferior
+function getActiveTile(){
+  if(tiles.length === 0) return null;
+  return tiles.reduce((prev, curr) => prev.y > curr.y ? curr : prev);
+}
+
 function drawTiles() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
+  const activeTile = getActiveTile();
+
   tiles.forEach(t => {
     let colorIdx = Math.min(Math.floor(speed-1), colors.length-1);
-    ctx.fillStyle = t.hit ? '#555' : colors[colorIdx];
+    // Resalta el tile activo
+    if(t === activeTile) ctx.fillStyle = '#FFD700'; // dorado
+    else ctx.fillStyle = t.hit ? '#555' : colors[colorIdx];
+
     ctx.fillRect(t.x+6, t.y+6, t.w-12, t.h-12);
 
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.fillRect(t.x+6, t.y+6, t.w-12, 6);
-
-    ctx.fillStyle = 'white';
-    ctx.font = '30px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    for(let i=0;i<cols;i++){
-      const centerX = i*tileW + tileW/2;
-      const posY = canvas.height - 10;
-      ctx.fillText(i+1, centerX, posY);
-    }
   });
+
+  // Dibujar números de columnas
+  ctx.fillStyle = 'white';
+  ctx.font = '30px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  for(let i=0;i<cols;i++){
+    const centerX = i*tileW + tileW/2;
+    const posY = canvas.height - 10;
+    ctx.fillText(i+1, centerX, posY);
+  }
 }
 
 function update() {
@@ -149,17 +161,50 @@ function update() {
   requestAnimationFrame(update);
 }
 
+// CLICK
 canvas.addEventListener('click', (e) => {
   if(!running) return;
 
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const col = Math.floor(x / tileW);
+
   const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
   if(tilesCol.length === 0) return;
 
-  // Primer tile de abajo hacia arriba
-  const firstTile = tilesCol.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
+  const activeTile = getActiveTile();
+  const firstTile = tilesCol.reduce((prev, curr) => prev.y > curr.y ? curr : prev);
+
+  if(firstTile !== activeTile){
+    gameOver();
+    return;
+  }
+
+  firstTile.hit = true;
+  const index = tiles.indexOf(firstTile);
+  if(index > -1) tiles.splice(index, 1);
+
+  score += 10;
+  level = 1 + Math.floor(score/50);
+});
+
+// TECLADO
+document.addEventListener('keydown', (e) => {
+  if(!running) return;
+  const col = keyMap[e.key];
+  if(col === undefined) return;
+
+  const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
+  if(tilesCol.length === 0) return;
+
+  const activeTile = getActiveTile();
+  const firstTile = tilesCol.reduce((prev, curr) => prev.y > curr.y ? curr : prev);
+
+  if(firstTile !== activeTile){
+    gameOver();
+    return;
+  }
+
   firstTile.hit = true;
   const index = tiles.indexOf(firstTile);
   if(index > -1) tiles.splice(index, 1);
@@ -189,10 +234,8 @@ function startGame() {
   gameSong.currentTime = 0;
   gameSong.play();
 
-  // Spawn sincronizado con el BPM
   spawnInterval = setInterval(spawnTile, intervalo);
 
-  // Incrementa velocidad cada 5.5 segundos
   speedInterval = setInterval(() => {
     if(running){
       speed += 0.015;
@@ -210,28 +253,12 @@ btnRestart.addEventListener('click', () => {
   clearInterval(speedInterval);
   startGame();
 });
-
-document.addEventListener('keydown', (e) => {
-  if(!running) return;
-  const col = keyMap[e.key];
-  if(col === undefined) return;
-
-  const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
-  if(tilesCol.length === 0) return;
-
-  const firstTile = tilesCol.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
-  firstTile.hit = true;
-  const index = tiles.indexOf(firstTile);
-  if(index > -1) tiles.splice(index, 1);
-
-  score += 10;
-  level = 1 + Math.floor(score/50);
-});
 </script>
 
 
 </body>
 </html>
+
 
 
 
