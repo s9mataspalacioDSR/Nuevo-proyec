@@ -147,7 +147,7 @@ canvas.addEventListener('click', (e)=>{
     if(!t.hit && x>=t.x && x<=t.x+t.w && y>=t.y && y<=t.y+t.h){
       t.hit=true;
       tiles.splice(i,1);
-      score += Math.floor(10*speed);
+      score += 10;
       level = 1 + Math.floor(score/50);
       speed = 1 + Math.floor(score/1000)*0.01;
       hit=true;
@@ -186,6 +186,7 @@ btnRestart.addEventListener('click', ()=>{
 
 </body>
 </html>
+
 
 
 
