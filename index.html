@@ -27,12 +27,14 @@
     width: 400px;
   }
   canvas {
-    border-radius:12px;
-    display:block;
-    width: 100%;
-    height: 600px;
-    background: linear-gradient(180deg,#0a0f1a,#07102a);
-  }
+  border-radius: 12px;
+  display: block;
+  width: 100%;
+  height: 600px;
+  background: linear-gradient(180deg,#0a0f1a,#07102a);
+  border: 6px solid #8A2BE2; /* Borde morado llamativo alrededor del juego */
+  box-shadow: 0 0 20px #8A2BE2, 0 0 40px #8A2BE2; /* Efecto de resplandor */
+}
   .hud {
     display:flex;
     justify-content:space-between;
@@ -125,15 +127,33 @@ function drawTiles() {
   // Dibujar todos los tiles
   tiles.forEach(t => {
     let colorIdx = Math.min(Math.floor(speed - 1), colors.length - 1);
-    // Resaltar el tile activo en dorado
-    ctx.fillStyle = t.hit ? '#555' : (t === activeTile ? '#FFD700' : colors[colorIdx]);
+
+    // Color de relleno
+    let fillColor = t.hit ? '#555' : (t === activeTile ? '#FFD700' : colors[colorIdx]);
+    ctx.fillStyle = fillColor;
     ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
+
+    // Borde del tile (color contrario)
+    ctx.strokeStyle = t.hit ? '#AAA' : (t === activeTile ? '#333' : '#fff');
+    ctx.lineWidth = 3;
+    ctx.strokeRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
 
     // Pequeña franja blanca en la parte superior del tile
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, 6);
   });
 
+  // Dibujar números de columna
+  ctx.fillStyle = 'white';
+  ctx.font = '30px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  for (let i = 0; i < cols; i++) {
+    const centerX = i * tileW + tileW / 2;
+    const posY = canvas.height - 10;
+    ctx.fillText(i + 1, centerX, posY);
+  }
+}
   // Dibujar números de columna
   ctx.fillStyle = 'white';
   ctx.font = '30px Arial';
@@ -261,6 +281,7 @@ btnRestart.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
