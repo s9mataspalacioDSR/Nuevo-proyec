@@ -85,8 +85,8 @@ const btnStart = document.getElementById('btnStart');
 const btnRestart = document.getElementById('btnRestart');
 const gameSong = document.getElementById('gameSong');
 
-const BPM = 118; // ajusta según tu canción
-const intervalo = (60 / BPM) * 1000; // intervalo entre tiles en ms
+const BPM = 118;
+const intervalo = (60 / BPM) * 1000;
 
 let tiles = [];
 let score = 0;
@@ -103,51 +103,46 @@ let speedInterval;
 const keyMap = { '1':0, '2':1, '3':2, '4':3 };
 const colors = ['#FF3CAC','#2B86C5','#42E695','#FFAA00','#FF1B6B','#8A2BE2','#00C2FF'];
 
-// Crear un nuevo tile en una columna aleatoria
 function spawnTile() {
   const col = Math.floor(Math.random() * cols);
   tiles.push({ x: col * tileW, y: -tileH, w: tileW, h: tileH, hit: false });
 }
 
-// Devuelve el tile más cercano al borde inferior
-function getActiveTile(){
+// Tile más cercano al borde inferior (mayor y)
+function getActiveTile() {
   if(tiles.length === 0) return null;
   return tiles.reduce((prev, curr) => prev.y > curr.y ? curr : prev);
 }
 
-// Dibuja todos los tiles y resalta el activo
 function drawTiles() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const activeTile = getActiveTile();
 
   tiles.forEach(t => {
     let colorIdx = Math.min(Math.floor(speed-1), colors.length-1);
-    if(t === activeTile) ctx.fillStyle = '#FFD700'; // dorado para activo
-    else ctx.fillStyle = t.hit ? '#555' : colors[colorIdx];
-
-    ctx.fillRect(t.x+6, t.y+6, t.w-12, t.h-12);
+    ctx.fillStyle = t.hit ? '#555' : (t === activeTile ? '#FFD700' : colors[colorIdx]);
+    ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
 
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
-    ctx.fillRect(t.x+6, t.y+6, t.w-12, 6);
+    ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, 6);
   });
 
   ctx.fillStyle = 'white';
   ctx.font = '30px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
-  for(let i=0;i<cols;i++){
+  for(let i=0; i<cols; i++){
     const centerX = i*tileW + tileW/2;
     const posY = canvas.height - 10;
     ctx.fillText(i+1, centerX, posY);
   }
 }
 
-// Actualiza la posición de los tiles y verifica si llegan al borde inferior
 function update() {
   if(!running) return;
 
-  for(let i=tiles.length-1;i>=0;i--){
+  for(let i=tiles.length-1; i>=0; i--){
     tiles[i].y += 3*speed;
     if(tiles[i].y + tiles[i].h >= canvas.height && !tiles[i].hit){
       gameOver();
@@ -214,7 +209,6 @@ document.addEventListener('keydown', (e) => {
   level = 1 + Math.floor(score/50);
 });
 
-// Termina el juego
 function gameOver(){
   running = false;
   clearInterval(spawnInterval);
@@ -223,7 +217,6 @@ function gameOver(){
   alert('Game Over! Puntos: ' + score);
 }
 
-// Inicia el juego
 function startGame() {
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
@@ -249,7 +242,6 @@ function startGame() {
   update();
 }
 
-// Botones
 btnStart.addEventListener('click', startGame);
 btnRestart.addEventListener('click', () => {
   running = false;
@@ -257,11 +249,13 @@ btnRestart.addEventListener('click', () => {
   clearInterval(speedInterval);
   startGame();
 });
+
 </script>
 
 
 </body>
 </html>
+
 
 
 
