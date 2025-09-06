@@ -169,10 +169,6 @@ canvas.addEventListener('click', (e) => {
   score += 10;
   level = 1 + Math.floor(score / 50);
 });
-
-gameOver();
-});
-
 function gameOver(){
   running=false;
   clearInterval(spawnInterval);
@@ -234,5 +230,6 @@ document.addEventListener('keydown', (e) => {
 
 </body>
 </html>
+
 
 
