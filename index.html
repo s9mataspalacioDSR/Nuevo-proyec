@@ -119,25 +119,30 @@ function getActiveTile() {
 function drawTiles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Obtener el tile más cercano al borde inferior
   const activeTile = getActiveTile();
 
+  // Dibujar todos los tiles
   tiles.forEach(t => {
-    let colorIdx = Math.min(Math.floor(speed-1), colors.length-1);
+    let colorIdx = Math.min(Math.floor(speed - 1), colors.length - 1);
+    // Resaltar el tile activo en dorado
     ctx.fillStyle = t.hit ? '#555' : (t === activeTile ? '#FFD700' : colors[colorIdx]);
     ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, t.h - 12);
 
+    // Pequeña franja blanca en la parte superior del tile
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.fillRect(t.x + 6, t.y + 6, t.w - 12, 6);
   });
 
+  // Dibujar números de columna
   ctx.fillStyle = 'white';
   ctx.font = '30px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
   for (let i = 0; i < cols; i++) {
-    const centerX = i*tileW + tileW/2;
+    const centerX = i * tileW + tileW / 2;
     const posY = canvas.height - 10;
-    ctx.fillText(i+1, centerX, posY);
+    ctx.fillText(i + 1, centerX, posY);
   }
 }
 
@@ -164,25 +169,24 @@ function update() {
 canvas.addEventListener('click', (e) => {
   if (!running) return;
 
+  const activeTile = getActiveTile();
+  if (!activeTile) return;
+
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
-  const col = Math.floor(x / tileW);
+  const y = e.clientY - rect.top;
 
-  // Buscar el tile activo en la columna clickeada
-  const activeTile = getActiveTile();
-  const clickedTile = tiles.find(t => !t.hit && t.x / tileW === col && t === activeTile);
-
-  if (!clickedTile) {
+  // Verificar si el clic está dentro del tile activo
+  if (x < activeTile.x || x > activeTile.x + activeTile.w || y < activeTile.y || y > activeTile.y + activeTile.h) {
     gameOver();
     return;
   }
 
-  clickedTile.hit = true;
-  const index = tiles.indexOf(clickedTile);
-  if (index > -1) tiles.splice(index, 1);
+  activeTile.hit = true;
+  tiles.splice(tiles.indexOf(activeTile), 1);
 
   score += 10;
-  level = 1 + Math.floor(score/50);
+  level = 1 + Math.floor(score / 50);
 });
 
 // Manejo de teclado
@@ -192,20 +196,21 @@ document.addEventListener('keydown', (e) => {
   if (col === undefined) return;
 
   const activeTile = getActiveTile();
-  const pressedTile = tiles.find(t => !t.hit && t.x / tileW === col && t === activeTile);
+  if (!activeTile) return;
 
-  if (!pressedTile) {
+  // Verificar si la columna presionada coincide con la columna del tile activo
+  if (activeTile.x / tileW !== col) {
     gameOver();
     return;
   }
 
-  pressedTile.hit = true;
-  const index = tiles.indexOf(pressedTile);
-  if (index > -1) tiles.splice(index, 1);
+  activeTile.hit = true;
+  tiles.splice(tiles.indexOf(activeTile), 1);
 
   score += 10;
-  level = 1 + Math.floor(score/50);
+  level = 1 + Math.floor(score / 50);
 });
+
 
 // Terminar el juego
 function gameOver() {
@@ -256,6 +261,7 @@ btnRestart.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
