@@ -149,7 +149,7 @@ canvas.addEventListener('click', (e)=>{
       tiles.splice(i,1);
       score += 10;
       level = 1 + Math.floor(score/50);
-      speed = 1 + Math.floor(score/1000)*0.01;
+      //speed = 1 + Math.floor(score/1000)*0.01;
       hit=true;
       break;
     }
@@ -165,14 +165,24 @@ function gameOver(){
 }
 
 function startGame(){
-  tiles=[];
-  score=0;
-  level=1;
-  speed=1;
-  running=true;
-  gameSong.currentTime=0;
+
+  tiles = [];
+  score = 0;
+  level = 1;
+  speed = 1;
+  running = true;
+  gameSong.currentTime = 0;
   gameSong.play();
-  spawnInterval=setInterval(spawnTile,500);
+  spawnInterval = setInterval(spawnTile, 500);
+
+  // 🔥 Aumentar velocidad cada 2 segundos
+  setInterval(() => {
+    if (running) {
+      speed += 0.03; // sube de a 0.3
+      level++;      // también subimos el nivel
+    }
+  }, 2000);
+
   update();
 }
 
@@ -186,6 +196,7 @@ btnRestart.addEventListener('click', ()=>{
 
 </body>
 </html>
+
 
 
 
