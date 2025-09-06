@@ -158,7 +158,6 @@ canvas.addEventListener('click', (e) => {
   const col = Math.floor(x / tileW);
   const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
   if (tilesCol.length === 0) { 
-    gameOver(); 
     return;
   }
 
@@ -236,3 +235,4 @@ document.addEventListener('keydown', (e) => {
 
 </body>
 </html>
+
