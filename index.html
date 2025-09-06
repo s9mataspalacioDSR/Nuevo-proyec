@@ -81,117 +81,154 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const hudScore = document.getElementById('hudScore');
 const hudLvl = document.getElementById('hudLvl');
+const hudName = document.getElementById('hudName');
 const btnStart = document.getElementById('btnStart');
 const btnRestart = document.getElementById('btnRestart');
 const gameSong = document.getElementById('gameSong');
+const BPM = 118;
+const intervalo = 60 / BPM * 1000;
 
-const cols = 4;
-const tileW = canvas.width / cols;
-const tileH = 150;
 let tiles = [];
 let score = 0;
 let level = 1;
 let speed = 1;
 let running = false;
+const cols = 4;
+const tileW = canvas.width / cols;
+const tileH = 150;
 let spawnInterval;
 let speedInterval;
 
-const colors = ['#FF3CAC','#2B86C5','#42E695','#FFAA00','#FF1B6B','#8A2BE2','#00C2FF'];
 const keyMap = { '1':0, '2':1, '3':2, '4':3 };
+const colors = ['#FF3CAC','#2B86C5','#42E695','#FFAA00','#FF1B6B','#8A2BE2','#00C2FF'];
 
 function spawnTile() {
   const col = Math.floor(Math.random() * cols);
-  tiles.push({x:col*tileW, y:-tileH, w:tileW, h:tileH, hit:false});
+  tiles.push({ x: col*tileW, y: -tileH, w: tileW, h: tileH, hit: false });
 }
 
 function drawTiles() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   tiles.forEach(t => {
     let colorIdx = Math.min(Math.floor(speed-1), colors.length-1);
     ctx.fillStyle = t.hit ? '#555' : colors[colorIdx];
     ctx.fillRect(t.x+6, t.y+6, t.w-12, t.h-12);
-    ctx.fillStyle='rgba(255,255,255,0.1)';
+
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.fillRect(t.x+6, t.y+6, t.w-12, 6);
+
     ctx.fillStyle = "white";
     ctx.font = "30px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
-    for(let i=0;i<cols;i++){
-      ctx.fillText(i+1, i*tileW+tileW/2, canvas.height-10);
+
+    for(let i=0; i<cols; i++){
+      const centerX = i * tileW + tileW/2;
+      const posY = canvas.height - 10;
+      ctx.fillText(i+1, centerX, posY);
     }
   });
 }
 
 function update() {
   if(!running) return;
-  for(let i=tiles.length-1;i>=0;i--){
+
+  for(let i=tiles.length-1; i>=0; i--){
     tiles[i].y += 3*speed;
-    if(tiles[i].y+tiles[i].h >= canvas.height && !tiles[i].hit){
+    if(tiles[i].y + tiles[i].h >= canvas.height && !tiles[i].hit){
       gameOver();
       return;
     }
   }
+
   drawTiles();
   hudScore.textContent = score;
   hudLvl.textContent = level;
+
   requestAnimationFrame(update);
 }
 
-canvas.addEventListener('click', e => {
+canvas.addEventListener('click', (e) => {
   if(!running) return;
-  const x = e.clientX - canvas.getBoundingClientRect().left;
-  const col = Math.floor(x/tileW);
-  const tilesCol = tiles.filter(t => !t.hit && t.x/tileW === col);
-  if(tilesCol.length===0) return;
-  const firstTile = tilesCol.reduce((p,c)=>p.y<c.y?p:c);
+
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const col = Math.floor(x / tileW);
+  const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
+  if(tilesCol.length === 0) return;
+
+  // Primer tile de abajo hacia arriba
+  const firstTile = tilesCol.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
   firstTile.hit = true;
-  tiles.splice(tiles.indexOf(firstTile),1);
+  const index = tiles.indexOf(firstTile);
+  if(index > -1) tiles.splice(index, 1);
+
   score += 10;
   level = 1 + Math.floor(score/50);
 });
 
-document.addEventListener('keydown', e => {
-  if(!running) return;
-  const col = keyMap[e.key];
-  if(col===undefined) return;
-  const tilesCol = tiles.filter(t => !t.hit && t.x/tileW===col);
-  if(tilesCol.length===0) return;
-  const firstTile = tilesCol.reduce((p,c)=>p.y<c.y?p:c);
-  firstTile.hit = true;
-  tiles.splice(tiles.indexOf(firstTile),1);
-  score +=10;
-  level = 1+Math.floor(score/50);
-});
+function gameOver(){
+  running = false;
+  clearInterval(spawnInterval);
+  clearInterval(speedInterval);
+  gameSong.pause();
+  alert('Game Over! Puntos: ' + score);
+}
 
 function startGame() {
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
-  tiles=[];
-  score=0;
-  level=1;
-  speed=1;
-  running=true;
-  gameSong.currentTime=0;
-  gameSong.play().catch(()=>{});
-  spawnInterval = setInterval(spawnTile,500);
-  speedInterval = setInterval(()=>{if(running){speed+=0.015;level++;}},5500);
+
+  tiles = [];
+  score = 0;
+  level = 1;
+  speed = 1;
+  running = true;
+
+  gameSong.currentTime = 0;
+  gameSong.play();
+
+  spawnInterval = setInterval(spawnTile, 500);
+
+  speedInterval = setInterval(() => {
+    if(running){
+      speed += 0.015;
+      level++;
+    }
+  }, 5500);
+
   update();
 }
 
-function gameOver() {
-  running=false;
+btnStart.addEventListener('click', startGame);
+btnRestart.addEventListener('click', () => {
+  running = false;
   clearInterval(spawnInterval);
   clearInterval(speedInterval);
-  gameSong.pause();
-  alert('Game Over! Puntos: '+score);
-}
+  startGame();
+});
 
-btnStart.addEventListener('click', startGame);
-btnRestart.addEventListener('click', ()=>{gameOver(); startGame();});
+document.addEventListener('keydown', (e) => {
+  if(!running) return;
+  const col = keyMap[e.key];
+  if(col === undefined) return;
+
+  const tilesCol = tiles.filter(t => !t.hit && t.x / tileW === col);
+  if(tilesCol.length === 0) return;
+
+  const firstTile = tilesCol.reduce((prev, curr) => prev.y > curr.y ? prev : curr);
+  firstTile.hit = true;
+  const index = tiles.indexOf(firstTile);
+  if(index > -1) tiles.splice(index, 1);
+
+  score += 10;
+  level = 1 + Math.floor(score/50);
+});
 </script>
 
 </body>
 </html>
+
 
 
 
