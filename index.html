@@ -31,11 +31,17 @@ body {
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
 #gameContainer {
   position: relative;
   width: 400px;
+  box-shadow: 0 0 50px rgba(255,255,255,0.05), 0 0 100px rgba(138,43,226,0.2);
+  transition: all 0.3s ease;
 }
 
+#gameContainer:hover {
+  box-shadow: 0 0 60px rgba(255,255,255,0.1), 0 0 120px rgba(138,43,226,0.3);
+}
 canvas {
   border-radius: 12px;
   display: block;
@@ -46,8 +52,10 @@ canvas {
   box-shadow: 0 0 20px #8A2BE2, 0 0 40px #FF3CAC;
   animation: glowPulse 3s infinite alternate;
   transition: all 0.3s ease;
+  filter: drop-shadow(0 0 10px #FF3CAC) drop-shadow(0 0 20px #8A2BE2);
 }
 
+/* Animación de resplandor */
 @keyframes glowPulse {
   0% { box-shadow: 0 0 20px #8A2BE2, 0 0 40px #FF3CAC; }
   25% { box-shadow: 0 0 25px #FF3CAC, 0 0 50px #42E695; }
@@ -56,26 +64,15 @@ canvas {
   100% { box-shadow: 0 0 20px #8A2BE2, 0 0 40px #FF3CAC; }
 }
 
-
-/* Glow extra cuando el usuario hace click sobre el canvas */
+/* Glow extra al click sobre el canvas */
 canvas:active {
   box-shadow: 0 0 35px #FF3CAC, 0 0 70px #8A2BE2, inset 0 0 20px #FFD700;
   transform: scale(1.02);
 }
-/* Efecto “hover” general */
+
+/* Efecto hover general */
 canvas:hover {
   box-shadow: 0 0 25px #FF3CAC, 0 0 50px #8A2BE2, inset 0 0 10px #42E695;
-}
-@keyframes glowPulse {
-  0% {
-    box-shadow: 0 0 20px #8A2BE2, 0 0 40px #8A2BE2;
-  }
-  50% {
-    box-shadow: 0 0 30px #FF3CAC, 0 0 60px #FF3CAC;
-  }
-  100% {
-    box-shadow: 0 0 20px #8A2BE2, 0 0 40px #8A2BE2;
-  }
 }
 
 .hud {
@@ -87,13 +84,17 @@ canvas:hover {
 
 .hud div {
   background: rgba(255,255,255,0.05);
-  padding:8px 14px;
-  border-radius:12px;
-  box-shadow: 0 0 10px rgba(255,255,255,0.3);
+  padding: 8px 14px;
+  border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 0 10px rgba(255,255,255,0.3);
   text-shadow: 0 0 5px #fff, 0 0 10px #42E695;
   font-weight: bold;
+  font-family: 'Orbitron', sans-serif; /* Tipografía futurista */
+  text-transform: uppercase;
+  letter-spacing: 1px;
   transition: all 0.3s ease;
+  animation: pulseHUD 3s infinite alternate; /* Pulsación */
 }
 
 .hud div:hover {
@@ -101,11 +102,32 @@ canvas:hover {
   transform: scale(1.05);
 }
 
+/* Animación pulsante HUD */
+@keyframes pulseHUD {
+  0% { box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+  50% { box-shadow: 0 0 20px #42E695, 0 0 30px #FF3CAC; }
+  100% { box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+}
+
+/* Vibración al pulsar HUD o botones */
+.hud div:active, button:active {
+  animation: shake 0.2s;
+}
+
+@keyframes shake {
+  0% { transform: translate(0,0); }
+  25% { transform: translate(2px,-2px); }
+  50% { transform: translate(-2px,2px); }
+  75% { transform: translate(2px,2px); }
+  100% { transform: translate(0,0); }
+}
+
 #controls {
   margin-top:10px;
   display:flex;
   justify-content:space-between;
 }
+
 button {
   padding:10px 16px;
   border-radius:10px;
@@ -340,6 +362,7 @@ btnRestart.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
