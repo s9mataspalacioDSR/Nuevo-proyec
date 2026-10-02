@@ -1,0 +1,12 @@
+DOBLA YA PARA ANDROID
+
+Esta carpeta contiene la versión web instalable (PWA). La app necesita estar publicada en una dirección HTTPS para que Chrome permita instalarla y usarla sin conexión.
+
+Pasos después de publicar la carpeta completa:
+1. Abre la dirección web en Chrome en tu Android.
+2. Pulsa el menú de tres puntos.
+3. Elige "Instalar aplicación" o "Añadir a pantalla de inicio".
+
+Los nombres y precios del catálogo y la cotización se guardan en el almacenamiento local del navegador del teléfono. La cuenta de "Contar" es temporal e independiente; el catálogo de elementos sí queda guardado.
+
+La carpeta debe conservar juntos index.html, manifest.webmanifest, sw.js, icon-192.png e icon-512.png.
